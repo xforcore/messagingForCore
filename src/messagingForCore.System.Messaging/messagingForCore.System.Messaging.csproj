@@ -19,7 +19,7 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);CS0618;CS0649;CS0169;CS0414;CS0067;CS0108;CS0114;CS0162;CS0168;CS0219;CS0436;CS1574;CS1584;CS1658;CA1416;SYSLIB0003;SYSLIB0004;SYSLIB0011;SYSLIB0050;SYSLIB0051</NoWarn>
     <PackageId>messagingForCore.Messaging</PackageId>
-    <Description>System.Messaging for .NET 10 on Linux, Windows and macOS: Microsoft's System.Messaging from the .NET Framework 4.8 Reference Source.</Description>
+    <Description>System.Messaging for .NET 10 on Linux, Windows and macOS: Microsoft's System.Messaging from the .NET Framework 4.8 Reference Source, with local private queues stored in SQLite.</Description>
     <!-- System.Messaging's identity, so that .NET Framework libraries bind to it: public signed with Microsoft's public
          key (token b03f5f7f11d50a3a, keys/), as drawingForCore does. Not signed by Microsoft. -->
     <AssemblyOriginatorKeyFile>..\..\keys\System.Messaging.snk</AssemblyOriginatorKeyFile>
@@ -47,7 +47,8 @@
     <Compile Include="..\..\external\referencesource\System.Xml\InternalApis\Clr\inc\LocalAppContext.cs" Link="Shared\LocalAppContext.cs" />
     <Compile Include="..\..\external\referencesource\System\misc\invariantcomparer.cs" Link="Shared\invariantcomparer.cs" />
     <Compile Include="AssemblyRef.cs" />
-    <Compile Include="NoMsmq.cs" />
+    <!-- The queue store, messagingForCore's own code, in place of MSMQ's runtime (Interop/*NativeMethods.cs call it). -->
+    <Compile Include="Store\*.cs" />
     <Compile Include="Res.g.cs" />
   </ItemGroup>
 
@@ -61,6 +62,12 @@
     <PackageReference Include="System.Security.Permissions" Version="10.0.0" />
     <!-- Active Directory lookups (public queues, MessageQueue.GetPublicQueues*): out of scope; Windows-only at run time. -->
     <PackageReference Include="System.DirectoryServices" Version="10.0.0" />
+    <!-- The queue database. Microsoft.Data.Sqlite brings SQLite's native library for Linux, Windows and macOS
+         (SQLitePCLRaw, a third-party dependency of a Microsoft package). -->
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.14" />
+    <!-- BinaryMessageFormatter: webForCore's port of BinaryFormatter (.NET's throws), from the webForCore feed
+         (nuget.config). -->
+    <PackageReference Include="webForCore.Serialization.Formatters" Version="0.10.0" />
   </ItemGroup>
 
   <!-- The strings, compiled from Microsoft's System.Messaging.txt (name=value lines) into System.Messaging.resources,
