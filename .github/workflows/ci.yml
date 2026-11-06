@@ -116,6 +116,9 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - name: Code rules
+        run: dotnet run tools/ci/check_code_rules.cs
+
       - name: Build
         run: dotnet build messagingForCore.slnx -c Release -nodeReuse:false -p:Version=0.0.0-windows.${{ github.run_number }}
 
