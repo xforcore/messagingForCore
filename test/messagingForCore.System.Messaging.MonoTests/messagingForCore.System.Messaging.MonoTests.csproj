@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Mono's System.Messaging tests, from mono/mono 0f53e9e (mcs/class/System.Messaging/Test, MIT) by way of the
+       external/mono submodule (xforcore/mono's messagingforcore branch). The files are System.Messaging_test.dll.sources'
+       list. They create private queues (.\private$\<guid>) unless MONO_TEST_RABBITMQ_SERVER is set. See NOTICE. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>System.Messaging_test</AssemblyName>
+    <RootNamespace>MonoTests.System.Messaging</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS0219;CS0169;CS1591;CS0436;CS0618;CS0612;CS0672;SYSLIB0003;SYSLIB0011;SYSLIB0051</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <MonoTests>..\..\external\mono\mcs\class\System.Messaging\Test\System.Messaging\</MonoTests>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MonoTests)AdminTest.cs" Link="System.Messaging\AdminTest.cs" />
+    <Compile Include="$(MonoTests)AsyncPeekTest.cs" Link="System.Messaging\AsyncPeekTest.cs" />
+    <Compile Include="$(MonoTests)AsyncReceiveTest.cs" Link="System.Messaging\AsyncReceiveTest.cs" />
+    <Compile Include="$(MonoTests)BasicMessagingTest.cs" Link="System.Messaging\BasicMessagingTest.cs" />
+    <Compile Include="$(MonoTests)MessageEnumeratorTest.cs" Link="System.Messaging\MessageEnumeratorTest.cs" />
+    <Compile Include="$(MonoTests)MessageQueuePermissionAttributeTest.cs" Link="System.Messaging\MessageQueuePermissionAttributeTest.cs" />
+    <Compile Include="$(MonoTests)MQUtil.cs" Link="System.Messaging\MQUtil.cs" />
+    <Compile Include="$(MonoTests)PeekTest.cs" Link="System.Messaging\PeekTest.cs" />
+    <Compile Include="$(MonoTests)SelectorTest.cs" Link="System.Messaging\SelectorTest.cs" />
+    <Compile Include="$(MonoTests)TransactionMessagingTest.cs" Link="System.Messaging\TransactionMessagingTest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="NUnit2Compat.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\messagingForCore.System.Messaging\messagingForCore.System.Messaging.csproj" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+  </ItemGroup>
+
+</Project>

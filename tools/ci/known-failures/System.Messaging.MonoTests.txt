@@ -1,0 +1,70 @@
+# System.Messaging.MonoTests failures accepted on Linux and Windows (since 6 Nov 2026). CI fails on any other failure,
+# and reports a test here that passes, so it can be removed (docs/TESTING.md).
+#
+# No queue store yet: every call that reaches MSMQ throws Microsoft's own "Message Queuing has not been installed on
+# this computer" (InvalidOperationException), as .NET Framework does where MSMQ isn't installed. The SQLite store
+# (issue #1) makes these pass; each pull request that adds part of it removes the tests it fixes. GetPublicQueues
+# needs Active Directory, which is out of scope, and will stay.
+MonoTests.System.Messaging.AdminTest.CreateNonTransactionalQueue
+MonoTests.System.Messaging.AdminTest.CreateTransactionalQueue
+MonoTests.System.Messaging.AdminTest.DeleteQueue
+MonoTests.System.Messaging.AdminTest.GetPublicQueues
+MonoTests.System.Messaging.AdminTest.GetQueue
+MonoTests.System.Messaging.AdminTest.PurgeQueue
+MonoTests.System.Messaging.AsyncPeekTest.BeginPeek
+MonoTests.System.Messaging.AsyncPeekTest.BeginPeekWithException
+MonoTests.System.Messaging.AsyncPeekTest.BeginPeekWithStateAndTimeout
+MonoTests.System.Messaging.AsyncPeekTest.BeginPeekWithStateAndTimeoutAndCallback
+MonoTests.System.Messaging.AsyncPeekTest.BeginPeekWithTimeout
+MonoTests.System.Messaging.AsyncReceiveTest.BeginReceive
+MonoTests.System.Messaging.AsyncReceiveTest.BeginReceiveWithException
+MonoTests.System.Messaging.AsyncReceiveTest.BeginReceiveWithStateAndTimeout
+MonoTests.System.Messaging.AsyncReceiveTest.BeginReceiveWithStateAndTimeoutAndCallback
+MonoTests.System.Messaging.AsyncReceiveTest.BeginReceiveWithTimeout
+MonoTests.System.Messaging.BasicMessagingTest.SendBinaryMessage
+MonoTests.System.Messaging.BasicMessagingTest.SendBinaryObject
+MonoTests.System.Messaging.BasicMessagingTest.SendBinaryText
+MonoTests.System.Messaging.BasicMessagingTest.SendDefaultMessage
+MonoTests.System.Messaging.BasicMessagingTest.SendDefaultObject
+MonoTests.System.Messaging.BasicMessagingTest.SendDefaultText
+MonoTests.System.Messaging.BasicMessagingTest.SendMessageWithLabel
+MonoTests.System.Messaging.BasicMessagingTest.SendReceiveBinaryMessage
+MonoTests.System.Messaging.BasicMessagingTest.SendReceiveBinaryMessageWithAllPropertiesSet
+MonoTests.System.Messaging.BasicMessagingTest.SendReceiveXmlMessage
+MonoTests.System.Messaging.PeekTest.PeekByCorrelationId
+MonoTests.System.Messaging.PeekTest.PeekByCorrelationIdWithTimeout
+MonoTests.System.Messaging.PeekTest.PeekById
+MonoTests.System.Messaging.PeekTest.PeekByIdWithTimeout
+MonoTests.System.Messaging.PeekTest.PeekMessage
+MonoTests.System.Messaging.PeekTest.PeekMessageWithTimeout
+MonoTests.System.Messaging.PeekTest.PeekNoMessageWithTimeout
+MonoTests.System.Messaging.SelectorTest.SelectByCorrelationId
+MonoTests.System.Messaging.SelectorTest.SelectByCorrelationIdWithTimeout
+MonoTests.System.Messaging.SelectorTest.SelectById
+MonoTests.System.Messaging.SelectorTest.SelectByIdWithTimeout
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveByCorrelationIdWithTransaction
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveByCorrelationIdWithTransactionAbort
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveByCorrelationIdWithTransactionAndTimeout
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveByCorrelationIdWithTransactionType
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveByCorrelationIdWithTransactionTypeAndTimeout
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveByIdWithTransaction
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveByIdWithTransactionAbort
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveByIdWithTransactionAndTimeout
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveByIdWithTransactionType
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveByIdWithTransactionTypeAndTimeout
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveWithTransaction
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveWithTransactionAbort
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveWithTransactionAndTimeout
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveWithTransactionAndTimeoutAndAbort
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveWithTransactionType
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveWithTransactionTypeAndTimeout
+MonoTests.System.Messaging.TransactionMessageTest.ReceiveWithTransactionTypeAndTimeoutFailure
+MonoTests.System.Messaging.TransactionMessageTest.Send2WithLabelWithTransaction
+MonoTests.System.Messaging.TransactionMessageTest.Send2WithTransaction
+MonoTests.System.Messaging.TransactionMessageTest.Send2WithTransactionAbort
+MonoTests.System.Messaging.TransactionMessageTest.SendWithTransactionType
+MonoTests.System.Messaging.TransactionMessageTest.SendWithTransactionTypeAndLabel
+#
+# A .NET difference: the System.Security.Permissions package's CodeAccessSecurityAttribute doesn't keep the
+# SecurityAction it's given (Action reads 0, not Assert); code access security doesn't exist on .NET.
+MonoTests.System.Messaging.MessageQueuePermissionAttributeTest.Action
