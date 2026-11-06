@@ -23,14 +23,43 @@ in [issue #1](https://github.com/xforcore/messagingForCore/issues/1). It is part
 
 | | |
 | --- | --- |
-| Status | **Scaffolding (0.1.0, unreleased).** Microsoft's System.Messaging builds for .NET 10 and Mono's tests run against it. The SQLite queue store isn't written yet, so every call that reaches MSMQ fails as it does on .NET Framework where MSMQ isn't installed: `InvalidOperationException`, "Message Queuing has not been installed on this computer." |
+| Status | **Pre-release (0.1.0, unreleased).** The SQLite queue store is in: local private queues, send, receive and peek, cursors, asynchronous receive, internal transactions, the XML and binary formatters, and the `messagingforcore-msmq` setup tool |
 | Target | .NET 10 LTS (`net10.0`). Linux x64 and Windows x64, built and tested in CI |
-| Tests | Mono's System.Messaging tests, in CI on Linux and on Windows: 87 tests, 24 pass, 3 skipped (a fixture Mono ignored), 60 known failures (59 need the queue store, 1 is a .NET difference). CI fails on any other failure ([docs/TESTING.md](docs/TESTING.md)) |
-| Packages | `messagingForCore` (references the rest) and `messagingForCore.Messaging` (System.Messaging). Not released yet |
+| Tests | In CI on Linux and on Windows: messagingForCore's own 68 tests, all pass; Mono's System.Messaging tests, 87, 85 pass, 2 known failures (Active Directory, and a code access security difference). CI fails on any other failure ([docs/TESTING.md](docs/TESTING.md)) |
+| Packages | `messagingForCore` (references `messagingForCore.Messaging`, System.Messaging) and `messagingForCore.Msmq` (the setup tool), on the feed below once released. `BinaryMessageFormatter` needs `webForCore.Serialization.Formatters` from [webForCore](https://github.com/xforcore/webForCore)'s feed, so each messagingForCore version names the webForCore version it uses (0.1.0: webForCore 0.10.0) |
+
+## Using it
+
+Add the feeds to your `nuget.config` (messagingForCore's, and webForCore's for `webForCore.Serialization.Formatters`):
+
+```xml
+<configuration>
+  <packageSources>
+    <add key="messagingForCore" value="https://xforcore.github.io/messagingForCore/index.json" />
+    <add key="webForCore" value="https://xforcore.github.io/webForCore/index.json" />
+  </packageSources>
+</configuration>
+```
+
+Reference the package instead of .NET Framework's System.Messaging, and prepare the queue database once per machine
+with the tool:
+
+```xml
+<PackageReference Include="messagingForCore" Version="0.1.0" />
+```
+
+```bash
+dotnet tool install -g messagingForCore.Msmq --add-source https://xforcore.github.io/messagingForCore/index.json
+messagingforcore-msmq install /var/lib/messagingforcore/queues.db
+export MESSAGINGFORCORE_DB=/var/lib/messagingforcore/queues.db
+messagingforcore-msmq create-queue '.\private$\orders' --transactional
+```
+
+[docs/MIGRATING.md](docs/MIGRATING.md) has the details: containers (mount the folder), no NFS or SMB, the errors.
 
 ## Scope
 
-Supported once the store is written, and failing with a `MessageQueueException` that names the limitation otherwise:
+Supported, and failing with a `MessageQueueException` that names the limitation otherwise:
 see [docs/NAMESPACES.md](docs/NAMESPACES.md) for the API and [docs/MSMQ-COMPATIBILITY.md](docs/MSMQ-COMPATIBILITY.md)
 for how it compares with MSMQ.
 
@@ -39,7 +68,8 @@ for how it compares with MSMQ.
   timeouts, by ID, correlation ID and lookup ID; cursors and enumerators; `BeginReceive`/`BeginPeek`;
   `MessageQueueTransaction` and `MessageQueueTransactionType.Single`; `XmlMessageFormatter` and `BinaryMessageFormatter`.
 - **Not supported:** remote and public queues, Active Directory, HTTP format names, `Automatic` (DTC) transactions,
-  queue security, `ActiveXMessageFormatter`, acknowledgements, journal and dead-letter queues, message time limits, and
+  queue security, COM objects in `ActiveXMessageFormatter` bodies, acknowledgements, journal and dead-letter queues,
+  message time limits (stored, not acted on), and
   databases on network file systems.
 
 **Not MSMQ, even on Windows.** messagingForCore never calls MSMQ, so a migrated application can't exchange messages
@@ -54,10 +84,15 @@ down to the files messagingForCore uses at a fixed commit, with each of messagin
 | Project | Assembly | From |
 | --- | --- | --- |
 | `src/messagingForCore.System.Messaging` | System.Messaging 4.0.0.0 | [microsoft/referencesource](https://github.com/microsoft/referencesource) (.NET Framework 4.8), `System.Messaging/` |
+| `src/messagingForCore.System.Messaging/Store` | (in System.Messaging) | messagingForCore's own: the queue store on SQLite (Microsoft.Data.Sqlite), in place of `mqrt.dll` |
+| `src/messagingForCore.Msmq` | `messagingforcore-msmq` (a .NET tool) | messagingForCore's own: the database's schema, and queue administration |
 | `src/messagingForCore` | none: the package that references the others | |
 | `test/messagingForCore.System.Messaging.MonoTests` | Mono's System.Messaging tests | [mono/mono](https://github.com/mono/mono), `mcs/class/System.Messaging/Test` |
+| `test/messagingForCore.System.Messaging.Tests` | messagingForCore's own tests | |
 
 - [docs/MODIFICATIONS.md](docs/MODIFICATIONS.md): every change from Microsoft's source and Mono's tests, and why.
+- [docs/LIFT.md](docs/LIFT.md): where Microsoft's code and Mono's tests come from, and how to change them.
+- [docs/NAMESPACES.md](docs/NAMESPACES.md) and [docs/MSMQ-COMPATIBILITY.md](docs/MSMQ-COMPATIBILITY.md): the scope, and how it compares with MSMQ.
 - [docs/TESTING.md](docs/TESTING.md): running the tests, and the known failures.
 - [docs/MIGRATING.md](docs/MIGRATING.md): moving an application that uses System.Messaging.
 - [CONTRIBUTING.md](CONTRIBUTING.md): how to make a change.
@@ -79,7 +114,7 @@ tools/ci/package-smoke.sh packages 0.1.0-local     # an application built from t
 ```text
 external/                             # Microsoft's and Mono's code: submodules of the xforcore forks' messagingforcore branches
 src/                                  # the projects
-test/                                 # Mono's tests
+test/                                 # Mono's tests and messagingForCore's own
 keys/                                 # Microsoft's public key, for public signing
 tools/                                # generators, and tests, known failures, packing and the package smoke test (ci/)
 docs/                                 # scope, migrating, modifications, testing, licensing, release notes

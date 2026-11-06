@@ -12,6 +12,8 @@ Yes. Everything in the packages is under the MIT License.
 | System.Messaging (Microsoft's code, .NET Framework 4.8 Reference Source) | `external/referencesource`, built by `src/messagingForCore.System.Messaging` | MIT (© Microsoft) | ✅ Yes |
 | messagingForCore's own code | `src/`, `tools/` | MIT (© messagingForCore contributors) | ✅ Yes |
 | System.Security.Permissions, System.DirectoryServices (from NuGet) | restored at build time | MIT (© .NET Foundation) | ✅ Yes |
+| Microsoft.Data.Sqlite (from NuGet), with SQLitePCLRaw and SQLite | restored at build time | MIT (© .NET Foundation); SQLitePCLRaw Apache 2.0 (© Eric Sink); SQLite public domain | ✅ Yes |
+| webForCore.Serialization.Formatters (from webForCore's feed) | restored at build time | MIT (© .NET Foundation, webForCore contributors) | ✅ Yes |
 | Mono's System.Messaging tests | `external/mono`, built by `test/` | MIT (© their authors) | ✅ Yes (not in the packages) |
 
 ### What the licences ask of you
@@ -19,6 +21,7 @@ Yes. Everything in the packages is under the MIT License.
 | Licence | When you distribute the code or binaries (including inside a commercial product) |
 | --- | --- |
 | MIT | Include the copyright notice and the licence text |
+| Apache 2.0 (SQLitePCLRaw) | Include the licence text and any NOTICE file it has; say if you changed its files |
 
 ## Names and signatures
 

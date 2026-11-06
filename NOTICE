@@ -11,8 +11,8 @@ Summary
   Component                                   Location                                      Licence
   ------------------------------------------  --------------------------------------------  --------------------------
   System.Messaging (.NET Framework 4.8)       src/messagingForCore.System.Messaging         MIT (Microsoft)
-  messagingForCore's own code                 src/, tools/                                  MIT (messagingForCore
-                                                                                            contributors)
+  messagingForCore's own code: the queue  src/, tools/, test/messagingForCore.System.    MIT (messagingForCore
+  store, the setup tool, the tests            Messaging.Tests                               contributors)
   Mono's System.Messaging tests               test/messagingForCore.System.Messaging.       MIT (Michael Barker and
                                               MonoTests                                     others)
 
@@ -42,3 +42,14 @@ test/messagingForCore.System.Messaging.MonoTests/NUnit2Compat.cs comes from webF
 (https://github.com/xforcore/webForCore, test/webForCore.System.Web.MonoTests/NUnit2Compat.cs), MIT License,
 Copyright (c) webForCore contributors. tools/ci/check_failures.cs and tools/ci/trx_summary.cs come from drawingForCore
 (https://github.com/xforcore/drawingForCore), MIT License, Copyright (c) drawingForCore contributors.
+
+Package dependencies
+--------------------
+
+The packages depend on, and restore from NuGet: Microsoft.Data.Sqlite (https://github.com/dotnet/efcore, MIT License,
+Copyright (c) .NET Foundation and Contributors), which brings SQLitePCLRaw (https://github.com/ericsink/SQLitePCL.raw,
+Apache License 2.0, Copyright (c) Eric Sink) and SQLite itself (https://sqlite.org, public domain), a third-party
+dependency of a Microsoft package; and webForCore.Serialization.Formatters (https://github.com/xforcore/webForCore, from
+webForCore's feed https://xforcore.github.io/webForCore/index.json), webForCore's port of BinaryFormatter from
+dotnet/runtime and the Reference Source, MIT License, Copyright (c) .NET Foundation and Contributors and webForCore
+contributors. None of them is copied into this repository.
