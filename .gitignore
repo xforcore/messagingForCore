@@ -1,0 +1,12 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+# Test results and packages (tools/ci/run-tests.sh, tools/ci/pack.sh)
+TestResults/
+packages/
+# Editors
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
