@@ -34,3 +34,14 @@ them changes. The few edits outside it are the ones issue #1 named (asynchronous
 - **A newer upstream:** microsoft/referencesource is frozen at .NET Framework 4.8; there is nothing to follow. For
   Mono, rebase the branch's commits onto the new commit on a new branch, and record the new commit here and in
   MODIFICATIONS.md.
+
+## Differences in .NET's own libraries
+
+Where System.Messaging calls into .NET and .NET behaves differently from .NET Framework, the difference is accepted
+when it is inside .NET's base class library, and listed here.
+
+- **XML bodies' declaration.** `XmlMessageFormatter` serializes with `XmlSerializer.Serialize(Stream, object)`. On
+  .NET Framework that writes `<?xml version="1.0"?>`; on .NET it writes `<?xml version="1.0" encoding="utf-8"?>`.
+  Both are UTF-8 without a byte order mark, and each reads the other's (the .NET Framework comparison checks it,
+  docs/TESTING.md). Indented bodies also use the platform's newline, as all of messagingForCore's output does.
+  `BinaryMessageFormatter` bodies are byte for byte the same as .NET Framework's.

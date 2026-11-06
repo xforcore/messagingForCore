@@ -25,7 +25,7 @@ in [issue #1](https://github.com/xforcore/messagingForCore/issues/1). It is part
 | --- | --- |
 | Status | **Pre-release (0.1.0, unreleased).** The SQLite queue store is in: local private queues, send, receive and peek, cursors, asynchronous receive, internal transactions, the XML and binary formatters, and the `messagingforcore-msmq` setup tool |
 | Target | .NET 10 LTS (`net10.0`). Linux x64 and Windows x64, built and tested in CI |
-| Tests | In CI on Linux and on Windows: messagingForCore's own 68 tests, all pass; Mono's System.Messaging tests, 87, 85 pass, 2 known failures (Active Directory, and a code access security difference). CI fails on any other failure ([docs/TESTING.md](docs/TESTING.md)) |
+| Tests | In CI on Linux and on Windows: messagingForCore's own 68 tests and 8 two-process gate tests, all pass; .NET Framework 4.8's message bodies (both formatters) read on messagingForCore and the reverse, on the Windows runner; Mono's System.Messaging tests, 87, 85 pass, 2 known failures (Active Directory, and a code access security difference). CI fails on any other failure ([docs/TESTING.md](docs/TESTING.md)) |
 | Packages | `messagingForCore` (references `messagingForCore.Messaging`, System.Messaging) and `messagingForCore.Msmq` (the setup tool), on the feed below once released. `BinaryMessageFormatter` needs `webForCore.Serialization.Formatters` from [webForCore](https://github.com/xforcore/webForCore)'s feed, so each messagingForCore version names the webForCore version it uses (0.1.0: webForCore 0.10.0) |
 
 ## Using it
