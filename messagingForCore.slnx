@@ -7,5 +7,7 @@
   <Folder Name="/test/">
     <Project Path="test/messagingForCore.System.Messaging.MonoTests/messagingForCore.System.Messaging.MonoTests.csproj" />
     <Project Path="test/messagingForCore.System.Messaging.Tests/messagingForCore.System.Messaging.Tests.csproj" />
+    <Project Path="test/messagingForCore.Gate/messagingForCore.Gate.csproj" />
+    <Project Path="test/messagingForCore.Gate.Peer/messagingForCore.Gate.Peer.csproj" />
   </Folder>
 </Solution>

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The gate tests (issue #1): two processes on one queue database, as two applications on one machine share MSMQ.
+       The other process is messagingForCore.Gate.Peer, run with dotnet from this project's output. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>MessagingForCore.Gate</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <NoWarn>$(NoWarn);SYSLIB0011</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\messagingForCore.System.Messaging\messagingForCore.System.Messaging.csproj" />
+    <ProjectReference Include="..\..\src\messagingForCore.Msmq\messagingForCore.Msmq.csproj" />
+    <ProjectReference Include="..\messagingForCore.Gate.Peer\messagingForCore.Gate.Peer.csproj" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+  </ItemGroup>
+
+</Project>

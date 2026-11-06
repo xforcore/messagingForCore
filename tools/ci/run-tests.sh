@@ -10,7 +10,7 @@ OUT=$(cd "${1:-TestResults}" && pwd)
 
 status=0
 trx=()
-for s in System.Messaging.Tests System.Messaging.MonoTests; do
+for s in System.Messaging.Tests Gate System.Messaging.MonoTests; do
   # --blame: if the test host crashes, the log names the test that was running.
   dotnet test "test/messagingForCore.$s/messagingForCore.$s.csproj" -c Release --no-build --blame \
     --logger "trx;LogFileName=$s.trx" --results-directory "$OUT"
