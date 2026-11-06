@@ -1,0 +1,2 @@
+# System.Messaging.Tests (messagingForCore's own tests) failures accepted on Linux and Windows: none. CI fails on any
+# failure (docs/TESTING.md).
