@@ -47,6 +47,7 @@
     <Compile Include="..\..\external\referencesource\System.Xml\InternalApis\Clr\inc\LocalAppContext.cs" Link="Shared\LocalAppContext.cs" />
     <Compile Include="..\..\external\referencesource\System\misc\invariantcomparer.cs" Link="Shared\invariantcomparer.cs" />
     <Compile Include="AssemblyRef.cs" />
+    <Compile Include="NoMsmq.cs" />
     <Compile Include="Res.g.cs" />
   </ItemGroup>
 

@@ -28,7 +28,9 @@ public key token b03f5f7f11d50a3a) and the error without a queue store. A suite 
 its known-failures list, and CI reports a known failure that passes so it can be removed. Both jobs must pass for a
 release.
 
-The tests use no MSMQ, on Windows either: messagingForCore never calls it.
+The tests use no MSMQ, on Windows either: messagingForCore never calls it. GitHub's Windows runners have MSMQ
+installed, and the first CI run showed that Microsoft's unmodified interop reaches it there, so `mqrt.dll` is refused
+outright until the store replaces those imports ([MODIFICATIONS.md](MODIFICATIONS.md), "Never MSMQ").
 
 ## The suites
 
