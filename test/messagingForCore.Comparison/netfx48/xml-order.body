@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<Order xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Number>1234</Number>
+  <Customer>Contoso, Grüße</Customer>
+  <Total>99.95</Total>
+  <Placed>2026-11-06T12:30:15Z</Placed>
+  <Lines>
+    <string>widget</string>
+    <string>gadget</string>
+  </Lines>
+  <State>Shipped</State>
+</Order>

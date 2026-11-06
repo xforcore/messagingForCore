@@ -3,8 +3,9 @@
 // Message bodies across .NET Framework 4.8 and messagingForCore.
 //   write <folder>         writes each case's body (<case>.body) and body type (<case>.type)
 //   read <folder>          reads each case's body back with its formatter and checks the value
-//   compare <a> <b>        says which cases' bytes are identical (for information: formatters may differ in bytes
-//                          and still read each other)
+//   compare <a> <b>        checks that each binary case's bytes are identical: messagingForCore's BinaryFormatter writes
+//                          what .NET Framework's writes. XML bodies differ in the declaration (the BCL's XmlSerializer)
+//                          and newlines, and are reported, not failed.
 // Built for net48 it uses .NET Framework's System.Messaging, with no queue (formatters need none). Built for net10.0
 // it uses messagingForCore's, and sends every body through a queue in a database of its own first.
 using System;
@@ -93,13 +94,26 @@ public static class Program
                 return failures == 0 ? 0 : 1;
 
             case "compare":
+                int different = 0;
                 foreach (Case c in Cases)
                 {
                     byte[] a = File.ReadAllBytes(Path.Combine(args[1], c.Name + ".body"));
                     byte[] b = File.ReadAllBytes(Path.Combine(args[2], c.Name + ".body"));
-                    Console.WriteLine(c.Name + ": " + (a.SequenceEqual(b) ? "identical bytes" : "different bytes (" + a.Length + " and " + b.Length + ")"));
+                    bool same = a.SequenceEqual(b);
+                    if (!same && c.Name.StartsWith("xml-"))
+                    {
+                        // .NET's XmlSerializer.Serialize(Stream) writes encoding="utf-8" in the declaration, and both
+                        // indent with the platform's newline: a difference in the BCL, accepted (docs/LIFT.md). The
+                        // bodies read both ways (read).
+                        Console.WriteLine("info " + c.Name + ": different bytes (" + a.Length + " and " + b.Length + "), the XML declaration or newlines");
+                        continue;
+                    }
+                    Console.WriteLine((same ? "ok   " : "FAIL ") + c.Name + ": " + (same ? "identical bytes" : "different bytes (" + a.Length + " and " + b.Length + ")"));
+                    if (!same)
+                        different++;
                 }
-                return 0;
+                Console.WriteLine(different == 0 ? "All binary bodies identical." : different + " bodies differ.");
+                return different == 0 ? 0 : 1;
 
             default:
                 Console.Error.WriteLine("usage: write <folder> | read <folder> | compare <folder> <folder>");
