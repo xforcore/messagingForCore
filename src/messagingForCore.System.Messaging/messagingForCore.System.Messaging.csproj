@@ -1,0 +1,79 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- System.Messaging (.NET Framework 4.8), from the external/referencesource submodule: Microsoft's Reference Source,
+       compiled for .NET 10. Changes to Microsoft's files are commits on xforcore/referencesource's messagingforcore
+       branch (docs/MODIFICATIONS.md). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>System.Messaging</AssemblyName>
+    <RootNamespace>System.Messaging</RootNamespace>
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <FileVersion>4.8.9032.0</FileVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS0618;CS0649;CS0169;CS0414;CS0067;CS0108;CS0114;CS0162;CS0168;CS0219;CS0436;CS1574;CS1584;CS1658;CA1416;SYSLIB0003;SYSLIB0004;SYSLIB0011;SYSLIB0050;SYSLIB0051</NoWarn>
+    <PackageId>messagingForCore.Messaging</PackageId>
+    <Description>System.Messaging for .NET 10 on Linux, Windows and macOS: Microsoft's System.Messaging from the .NET Framework 4.8 Reference Source.</Description>
+    <!-- System.Messaging's identity, so that .NET Framework libraries bind to it: public signed with Microsoft's public
+         key (token b03f5f7f11d50a3a, keys/), as drawingForCore does. Not signed by Microsoft. -->
+    <AssemblyOriginatorKeyFile>..\..\keys\System.Messaging.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Src>..\..\external\referencesource\System.Messaging\</Src>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(Src)**\*.cs" Link="%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Windows Forms UI: the queue picker shown by Visual Studio's designer. The type converters stay. -->
+    <Compile Remove="$(Src)System\Messaging\Design\QueuePathDialog.cs" />
+    <Compile Remove="$(Src)System\Messaging\Design\QueuePathEditor.cs" />
+    <!-- System.Configuration.Install isn't on .NET: no installer components (docs/MODIFICATIONS.md). -->
+    <Compile Remove="$(Src)System\Messaging\MessageQueueInstaller.cs" />
+    <!-- .NET Framework's usage telemetry to Microsoft: not sent (docs/MODIFICATIONS.md). -->
+    <Compile Remove="$(Src)System\TelemetryEventSource.Events.cs" />
+    <!-- Shared files .NET Framework's build compiled into System.Messaging, from their copies elsewhere in the
+         Reference Source. -->
+    <Compile Include="..\..\external\referencesource\System.Configuration\misc\externdll.cs" Link="Shared\externdll.cs" />
+    <Compile Include="..\..\external\referencesource\System.Xml\InternalApis\Clr\inc\AppContextDefaultValues.cs" Link="Shared\AppContextDefaultValues.cs" />
+    <Compile Include="..\..\external\referencesource\System.Xml\InternalApis\Clr\inc\LocalAppContext.cs" Link="Shared\LocalAppContext.cs" />
+    <Compile Include="..\..\external\referencesource\System\misc\invariantcomparer.cs" Link="Shared\invariantcomparer.cs" />
+    <Compile Include="AssemblyRef.cs" />
+    <Compile Include="Res.g.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="$(Src)Resources\System\Messaging\Machine.bmp" LogicalName="System.Messaging.Machine.bmp" />
+    <EmbeddedResource Include="$(Src)Resources\System\Messaging\PublicQueue.bmp" LogicalName="System.Messaging.PublicQueue.bmp" />
+    <EmbeddedResource Include="$(Src)Resources\System\Messaging\Queues.bmp" LogicalName="System.Messaging.MessageQueue.bmp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Security.Permissions" Version="10.0.0" />
+    <!-- Active Directory lookups (public queues, MessageQueue.GetPublicQueues*): out of scope; Windows-only at run time. -->
+    <PackageReference Include="System.DirectoryServices" Version="10.0.0" />
+  </ItemGroup>
+
+  <!-- The strings, compiled from Microsoft's System.Messaging.txt (name=value lines) into System.Messaging.resources,
+       as .NET Framework's build did; Res.g.cs (tools/generate-res.cs) names them. -->
+  <Target Name="MessagingStrings" BeforeTargets="PrepareForBuild"
+          Inputs="$(Src)System.Messaging.txt" Outputs="$(IntermediateOutputPath)System.Messaging.resources">
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <GenerateResource Sources="$(Src)System.Messaging.txt" OutputResources="$(IntermediateOutputPath)System.Messaging.resources"
+                      ExecuteAsTool="false" />
+  </Target>
+  <Target Name="MessagingStringsEmbed" BeforeTargets="PrepareForBuild" AfterTargets="MessagingStrings">
+    <ItemGroup>
+      <EmbeddedResource Include="$(IntermediateOutputPath)System.Messaging.resources" LogicalName="System.Messaging.resources" Type="Non-Resx" WithCulture="false" />
+    </ItemGroup>
+  </Target>
+
+</Project>

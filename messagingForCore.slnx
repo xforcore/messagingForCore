@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/messagingForCore/messagingForCore.csproj" />
+    <Project Path="src/messagingForCore.System.Messaging/messagingForCore.System.Messaging.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/messagingForCore.System.Messaging.MonoTests/messagingForCore.System.Messaging.MonoTests.csproj" />
+  </Folder>
+</Solution>
