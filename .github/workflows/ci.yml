@@ -78,6 +78,10 @@ jobs:
           path: ${{ runner.temp }}/TestResults/*.trx
           if-no-files-found: warn
 
+      # Bodies .NET Framework 4.8 wrote (stored fixtures) read on messagingForCore, through the queue store.
+      - name: .NET Framework 4.8 bodies
+        run: tools/ci/netfx-compare.sh "$RUNNER_TEMP/compare"
+
       - name: Pack
         run: tools/ci/pack.sh ${{ steps.version.outputs.version }} "$RUNNER_TEMP/packages"
 
@@ -132,6 +136,18 @@ jobs:
         with:
           name: test-results-windows
           path: ${{ runner.temp }}/TestResults/*.trx
+          if-no-files-found: warn
+
+      # .NET Framework 4.8 (on the runner) and messagingForCore read each other's message bodies, both formatters.
+      - name: .NET Framework 4.8 comparison
+        run: tools/ci/netfx-compare.sh "$RUNNER_TEMP/compare"
+
+      - name: Upload the bodies .NET Framework wrote
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: netfx48-bodies
+          path: ${{ runner.temp }}/compare/netfx
           if-no-files-found: warn
 
       - name: Pack

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The .NET Framework 4.8 comparison (issue #1, tools/ci/netfx-compare.sh): the same program built for net48, on
+       .NET Framework's own System.Messaging, and for net10.0, on messagingForCore's. Each writes message bodies with
+       XmlMessageFormatter and BinaryMessageFormatter to files and reads the other's, so a body written by .NET
+       Framework reads on messagingForCore, and the reverse. The net10.0 build sends each body through a queue in a
+       database of its own, so the store is in the path. net48 runs on Windows only (CI's Windows job). -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net10.0;net48</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <NoWarn>$(NoWarn);SYSLIB0011</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\messagingForCore.Comparison.Types\messagingForCore.Comparison.Types.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <Reference Include="System.Messaging" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <ProjectReference Include="..\..\src\messagingForCore.System.Messaging\messagingForCore.System.Messaging.csproj" />
+    <ProjectReference Include="..\..\src\messagingForCore.Msmq\messagingForCore.Msmq.csproj" />
+  </ItemGroup>
+</Project>
