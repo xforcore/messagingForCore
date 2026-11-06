@@ -1,0 +1,10 @@
+[submodule "external/referencesource"]
+	path = external/referencesource
+	url = https://github.com/xforcore/referencesource.git
+	branch = messagingforcore
+	shallow = true
+[submodule "external/mono"]
+	path = external/mono
+	url = https://github.com/xforcore/mono.git
+	branch = messagingforcore
+	shallow = true

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The other process in the gate tests (test/messagingForCore.Gate): sends, receives and transacts on the queue
+       database the test gives it in MESSAGINGFORCORE_DB, as a second application on the same machine would. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <NoWarn>$(NoWarn);SYSLIB0011</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\messagingForCore.System.Messaging\messagingForCore.System.Messaging.csproj" />
+  </ItemGroup>
+</Project>

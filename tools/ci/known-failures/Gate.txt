@@ -1,0 +1,1 @@
+# Gate (two processes on one database) failures accepted on Linux and Windows: none. CI fails on any failure.

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The package an application references, as it would reference webForCore or drawingForCore: it brings
+       messagingForCore.Messaging (System.Messaging). The setup tool is a .NET tool package of its own,
+       messagingForCore.Msmq (a tool package can't be a dependency). No assembly of its own. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>messagingForCore</PackageId>
+    <Description>System.Messaging for .NET 10 on Linux, Windows and macOS: Microsoft's System.Messaging, with local private queues stored in SQLite. Prepare the database with the messagingForCore.Msmq tool (messagingforcore-msmq).</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\messagingForCore.System.Messaging\messagingForCore.System.Messaging.csproj" />
+  </ItemGroup>
+
+</Project>
