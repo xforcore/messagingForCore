@@ -1,0 +1,10 @@
+# System.Messaging.MonoTests failures accepted on Linux and Windows (since 6 Nov 2026). CI fails on any other failure,
+# and reports a test here that passes, so it can be removed (docs/TESTING.md).
+#
+# Out of scope (issue #1): public queues need Active Directory. GetPublicQueues creates .\admin-queue-3, a public
+# queue, which fails with MessageQueueException(UnsupportedOperation) naming the limitation.
+MonoTests.System.Messaging.AdminTest.GetPublicQueues
+#
+# A .NET difference: the System.Security.Permissions package's CodeAccessSecurityAttribute doesn't keep the
+# SecurityAction it's given (Action reads 0, not Assert); code access security doesn't exist on .NET.
+MonoTests.System.Messaging.MessageQueuePermissionAttributeTest.Action

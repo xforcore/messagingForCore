@@ -1,0 +1,186 @@
+# Linux and Windows builds in parallel, the test suites on each (docs/TESTING.md), and the NuGet packages: every run
+# packs them, checks that an application builds and runs from them, and keeps Linux's as the "packages" artifact.
+# Microsoft's and Mono's code comes from the external/ submodules. A version tag (v0.1.0, matching <Version> in
+# Directory.Build.props) also publishes the packages as a GitHub release, once Linux and Windows pass.
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: "1"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      # The release version from Directory.Build.props; any other run builds a prerelease of it (0.1.0-ci.123).
+      - name: Version
+        id: version
+        run: |
+          base=$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            if [[ "${GITHUB_REF#refs/tags/v}" != "$base" ]]; then
+              echo "::error::Tag ${GITHUB_REF#refs/tags/} doesn't match <Version>$base</Version> in Directory.Build.props"; exit 1
+            fi
+            version=$base
+          else
+            version=$base-ci.$GITHUB_RUN_NUMBER
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Version: $version"
+
+      - name: Set up .NET (global.json)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      # CONTRIBUTING.md rules 8 and 9, on messagingForCore's own code.
+      - name: Code rules
+        run: dotnet run tools/ci/check_code_rules.cs
+
+      - name: Build
+        run: dotnet build messagingForCore.slnx -c Release -nodeReuse:false -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Test
+        run: tools/ci/run-tests.sh "$RUNNER_TEMP/TestResults"
+
+      - name: Test summary
+        if: always()
+        run: cat "$RUNNER_TEMP/TestResults/summary.md" >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ${{ runner.temp }}/TestResults/*.trx
+          if-no-files-found: warn
+
+      - name: Pack
+        run: tools/ci/pack.sh ${{ steps.version.outputs.version }} "$RUNNER_TEMP/packages"
+
+      # An application that references the messagingForCore package (not the projects) builds and runs.
+      - name: Package smoke test
+        run: tools/ci/package-smoke.sh "$RUNNER_TEMP/packages" ${{ steps.version.outputs.version }}
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: |
+            ${{ runner.temp }}/packages/*.nupkg
+            ${{ runner.temp }}/packages/*.snupkg
+          if-no-files-found: error
+
+  # The same build, tests, packing and package smoke test on Windows. No MSMQ is installed or used.
+  build-windows:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Check files out as they are stored, as on Linux: core.autocrlf would give the shell scripts CRLF line endings.
+      - name: Line endings
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Set up .NET (global.json)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Code rules
+        run: dotnet run tools/ci/check_code_rules.cs
+
+      - name: Build
+        run: dotnet build messagingForCore.slnx -c Release -nodeReuse:false -p:Version=0.0.0-windows.${{ github.run_number }}
+
+      - name: Test
+        run: tools/ci/run-tests.sh "$RUNNER_TEMP/TestResults"
+
+      - name: Test summary
+        if: always()
+        run: cat "$RUNNER_TEMP/TestResults/summary.md" >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-windows
+          path: ${{ runner.temp }}/TestResults/*.trx
+          if-no-files-found: warn
+
+      - name: Pack
+        run: tools/ci/pack.sh 0.0.0-windows.${{ github.run_number }} "$RUNNER_TEMP/packages"
+
+      - name: Package smoke test
+        run: tools/ci/package-smoke.sh "$RUNNER_TEMP/packages" 0.0.0-windows.${{ github.run_number }}
+
+  # A version tag: the tested packages become a GitHub release.
+  release:
+    needs: [build-and-test, build-windows]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: docs/release-notes
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: packages
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build-and-test.outputs.version }}
+        run: |
+          cat > notes.md <<NOTES
+          messagingForCore $VERSION as NuGet packages, also on the feed https://xforcore.github.io/messagingForCore/index.json
+          (with webForCore's feed for webForCore.Serialization.Formatters; see README.md). Reference \`messagingForCore\`, which brings
+          \`messagingForCore.Messaging\` (System.Messaging); the setup tool is \`messagingForCore.Msmq\` (messagingforcore-msmq).
+          NOTES
+          # The version's own notes (docs/release-notes/<version>.md), when there are some.
+          if [ -f "docs/release-notes/$VERSION.md" ]; then printf '\n' >> notes.md; cat "docs/release-notes/$VERSION.md" >> notes.md; fi
+          gh release create "$GITHUB_REF_NAME" packages/*.nupkg packages/*.snupkg \
+            --repo "$GITHUB_REPOSITORY" --title "messagingForCore $VERSION" --notes-file notes.md --verify-tag
+
+  # The NuGet feed on GitHub Pages, rebuilt from the latest releases (a release made with GITHUB_TOKEN doesn't start
+  # other workflows, so it is called from here).
+  feed:
+    needs: release
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/feed.yml

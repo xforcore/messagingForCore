@@ -1,0 +1,55 @@
+messagingForCore
+================
+
+messagingForCore is licensed under the MIT License (see LICENSE). This file lists every component in this repository,
+where it came from, its licence and its copyright holders. Every source file keeps its original header. A
+plain-language summary is in docs/LICENSING.md.
+
+Summary
+-------
+
+  Component                                   Location                                      Licence
+  ------------------------------------------  --------------------------------------------  --------------------------
+  System.Messaging (.NET Framework 4.8)       src/messagingForCore.System.Messaging         MIT (Microsoft)
+  messagingForCore's own code: the queue  src/, tools/, test/messagingForCore.System.    MIT (messagingForCore
+  store, the setup tool, the tests            Messaging.Tests                               contributors)
+  Mono's System.Messaging tests               test/messagingForCore.System.Messaging.       MIT (Michael Barker and
+                                              MonoTests                                     others)
+
+System.Messaging
+----------------
+
+This product includes software from the .NET Framework 4.8 Reference Source
+(https://github.com/microsoft/referencesource, commit ec9fa9a), licensed under the MIT License, Copyright (c) Microsoft
+Corporation: System.Messaging (System.Messaging/), and the shared files its build compiled in from elsewhere in the
+Reference Source (System.Configuration/misc/externdll.cs, System.Xml/InternalApis/Clr/inc/AppContextDefaultValues.cs
+and LocalAppContext.cs, System/misc/invariantcomparer.cs).
+
+It is in the external/referencesource submodule (https://github.com/xforcore/referencesource, branch
+messagingforcore), compiled by src/messagingForCore.System.Messaging; each file keeps its original header, and every
+change is a commit on that branch. The assembly carries System.Messaging's public key (token b03f5f7f11d50a3a,
+keys/System.Messaging.snk) so that references to it resolve; it is public signed, not signed by Microsoft.
+
+Tests
+-----
+
+Mono's System.Messaging tests (mcs/class/System.Messaging/Test) come from Mono (https://github.com/mono/mono, commit
+0f53e9e), licensed under the MIT License; each file names its authors and copyright holders (Michael Barker, 2008, and
+others). They are in the external/mono submodule (https://github.com/xforcore/mono, branch messagingforcore), compiled
+by test/messagingForCore.System.Messaging.MonoTests; every change is a commit on that branch.
+
+test/messagingForCore.System.Messaging.MonoTests/NUnit2Compat.cs comes from webForCore
+(https://github.com/xforcore/webForCore, test/webForCore.System.Web.MonoTests/NUnit2Compat.cs), MIT License,
+Copyright (c) webForCore contributors. tools/ci/check_failures.cs and tools/ci/trx_summary.cs come from drawingForCore
+(https://github.com/xforcore/drawingForCore), MIT License, Copyright (c) drawingForCore contributors.
+
+Package dependencies
+--------------------
+
+The packages depend on, and restore from NuGet: Microsoft.Data.Sqlite (https://github.com/dotnet/efcore, MIT License,
+Copyright (c) .NET Foundation and Contributors), which brings SQLitePCLRaw (https://github.com/ericsink/SQLitePCL.raw,
+Apache License 2.0, Copyright (c) Eric Sink) and SQLite itself (https://sqlite.org, public domain), a third-party
+dependency of a Microsoft package; and webForCore.Serialization.Formatters (https://github.com/xforcore/webForCore, from
+webForCore's feed https://xforcore.github.io/webForCore/index.json), webForCore's port of BinaryFormatter from
+dotnet/runtime and the Reference Source, MIT License, Copyright (c) .NET Foundation and Contributors and webForCore
+contributors. None of them is copied into this repository.
