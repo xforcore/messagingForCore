@@ -56,6 +56,10 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      # CONTRIBUTING.md rules 8 and 9, on messagingForCore's own code.
+      - name: Code rules
+        run: dotnet run tools/ci/check_code_rules.cs
+
       - name: Build
         run: dotnet build messagingForCore.slnx -c Release -nodeReuse:false -p:Version=${{ steps.version.outputs.version }}
 
@@ -159,10 +163,21 @@ jobs:
           VERSION: ${{ needs.build-and-test.outputs.version }}
         run: |
           cat > notes.md <<NOTES
-          messagingForCore $VERSION as NuGet packages. Reference \`messagingForCore\`, which brings
-          \`messagingForCore.Messaging\` (System.Messaging). See README.md.
+          messagingForCore $VERSION as NuGet packages, also on the feed https://xforcore.github.io/messagingForCore/index.json
+          (with webForCore's feed for webForCore.Serialization.Formatters; see README.md). Reference \`messagingForCore\`, which brings
+          \`messagingForCore.Messaging\` (System.Messaging); the setup tool is \`messagingForCore.Msmq\` (messagingforcore-msmq).
           NOTES
           # The version's own notes (docs/release-notes/<version>.md), when there are some.
           if [ -f "docs/release-notes/$VERSION.md" ]; then printf '\n' >> notes.md; cat "docs/release-notes/$VERSION.md" >> notes.md; fi
           gh release create "$GITHUB_REF_NAME" packages/*.nupkg packages/*.snupkg \
             --repo "$GITHUB_REPOSITORY" --title "messagingForCore $VERSION" --notes-file notes.md --verify-tag
+
+  # The NuGet feed on GitHub Pages, rebuilt from the latest releases (a release made with GITHUB_TOKEN doesn't start
+  # other workflows, so it is called from here).
+  feed:
+    needs: release
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/feed.yml

@@ -1,8 +1,7 @@
 // Checks what an application gets from the messagingForCore package: Microsoft's System.Messaging with its .NET
-// Framework identity, and, until the SQLite store exists (issue #1), the error .NET Framework gives where MSMQ isn't
-// installed. Exits non-zero on any difference.
+// Framework identity, on the queue database the messagingForCore.Msmq tool prepared (MESSAGINGFORCORE_DB), and
+// MSMQ's "service not available" without one. Exits non-zero on any difference.
 using System.Messaging;
-using System.Reflection;
 
 var failures = 0;
 void Check(bool ok, string what)
@@ -17,18 +16,36 @@ Check(name.Version == new Version(4, 0, 0, 0), $"assembly version {name.Version}
 var token = Convert.ToHexString(name.GetPublicKeyToken() ?? []).ToLowerInvariant();
 Check(token == "b03f5f7f11d50a3a", $"public key token {token}");
 
-// Formatters and messages work without a queue.
-var message = new Message("hello", new XmlMessageFormatter(new[] { typeof(string) }));
-Check(message.Formatter is XmlMessageFormatter, "Message with an XmlMessageFormatter");
-
-try
+if (args.Length > 0 && args[0] == "no-database")
 {
-    MessageQueue.Exists(@".\private$\messagingforcore-smoke");
-    Check(false, "MessageQueue.Exists without a queue store throws");
+    try
+    {
+        MessageQueue.Exists(@".\private$\smoke");
+        Check(false, "MessageQueue.Exists without a database throws");
+    }
+    catch (MessageQueueException e)
+    {
+        Check(e.MessageQueueErrorCode == MessageQueueErrorCode.ServiceNotAvailable && e.Message.Contains("MESSAGINGFORCORE_DB"),
+              $"without a database: {e.MessageQueueErrorCode}");
+    }
+    return failures == 0 ? 0 : 1;
 }
-catch (InvalidOperationException e)
+
+Check(MessageQueue.Exists(@".\private$\smoke"), "the queue the tool created exists");
+using (var queue = new MessageQueue(@".\private$\smoke"))
 {
-    Check(e.Message == "Message Queuing has not been installed on this computer.", $"MessageQueue.Exists: {e.Message}");
+    queue.Formatter = new BinaryMessageFormatter();
+    using (var transaction = new MessageQueueTransaction())
+    {
+        transaction.Begin();
+        queue.Send(new Message("binary") { Formatter = new BinaryMessageFormatter() }, transaction);
+        queue.Send(new Message("xml") { Formatter = new XmlMessageFormatter() }, transaction);
+        transaction.Commit();
+    }
+    Check((string)queue.Receive(TimeSpan.Zero, MessageQueueTransactionType.Single).Body == "binary", "BinaryMessageFormatter round trip");
+    queue.Formatter = new XmlMessageFormatter(new[] { typeof(string) });
+    Check((string)queue.Receive(TimeSpan.Zero, MessageQueueTransactionType.Single).Body == "xml", "XmlMessageFormatter round trip");
+    queue.Send("left for the list", MessageQueueTransactionType.Single);
 }
 
 return failures == 0 ? 0 : 1;

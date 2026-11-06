@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Builds and runs tools/ci/package-smoke, an application that uses messagingForCore through its packages only, against
-# the packages in <package folder> (and nuget.org for everything else).
+# the packages in <package folder> (with webForCore's feed and nuget.org for everything else). The queue database is
+# prepared with the messagingForCore.Msmq tool package, as a host would.
 # Usage: tools/ci/package-smoke.sh <package folder> <version>
 set -euo pipefail
 # pwd -W: the Windows form of the path under Git Bash, since it is written into nuget.config.
@@ -16,13 +17,20 @@ cat > nuget.config <<CONFIG
   <packageSources>
     <clear />
     <add key="messagingForCore" value="$packages" />
+    <add key="webForCore" value="https://xforcore.github.io/webForCore/index.json" />
     <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
   </packageSources>
   <packageSourceMapping>
     <packageSource key="messagingForCore"><package pattern="messagingForCore" /><package pattern="messagingForCore.*" /></packageSource>
+    <packageSource key="webForCore"><package pattern="webForCore.*" /></packageSource>
     <packageSource key="nuget.org"><package pattern="*" /></packageSource>
   </packageSourceMapping>
 </configuration>
 CONFIG
+dotnet tool install messagingForCore.Msmq --version "$version" --tool-path "$work/tool" --configfile nuget.config -v q
+"$work/tool/messagingforcore-msmq" install "$work/db/queues.db"
+"$work/tool/messagingforcore-msmq" create-queue '.\private$\smoke' --transactional --db "$work/db/queues.db"
 dotnet build Smoke.csproj -c Release -p:MessagingForCoreVersion="$version" -nodeReuse:false -v q -nologo
-dotnet bin/Release/net10.0/Smoke.dll
+MESSAGINGFORCORE_DB= dotnet bin/Release/net10.0/Smoke.dll no-database
+MESSAGINGFORCORE_DB="$work/db/queues.db" dotnet bin/Release/net10.0/Smoke.dll
+"$work/tool/messagingforcore-msmq" list --db "$work/db/queues.db"
